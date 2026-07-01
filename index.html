@@ -74,9 +74,33 @@
             align-items: center;
         }
 
+        /* Revenue Ticker Style */
+        .revenue-ticker {
+            background-color: #faf8f5;
+            border: 1px solid var(--secondary-color);
+            border-left: 5px solid var(--secondary-color);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .revenue-ticker span {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+
+        .revenue-amount {
+            font-size: 1.3rem !important;
+            color: var(--primary-color) !important;
+        }
+
         /* Continuous Display Layout */
         .continuous-menu-container {
-            max-height: 750px;
+            max-height: 800px;
             overflow-y: auto;
             padding-right: 10px;
         }
@@ -251,6 +275,7 @@
 
     <header>
         <h1>Klen Café</h1>
+        <p>Live Sales Tracker (Dataset derived from 1000008333.jpg)</p>
     </header>
 
     <div class="container">
@@ -299,6 +324,12 @@
 
             <div class="panel">
                 <h2>Recent Transactions</h2>
+                
+                <div class="revenue-ticker">
+                    <span>Total Revenue Today:</span>
+                    <span id="day-total-revenue" class="revenue-amount">0 KHR</span>
+                </div>
+
                 <ul id="transaction-log" class="log-list">
                     <li style="color: #888; justify-content: center;">No sales recorded yet.</li>
                 </ul>
@@ -315,7 +346,6 @@
     </div>
 
     <script>
-        // Mapping internal Category ID strings to display labels
         const categoriesMap = {
             "Hot Coffee": "ប្រភេទកាហ្វេក្តៅ (HOT)",
             "Ice Coffee": "ប្រភេទកាហ្វេត្រជាក់ (ICE)",
@@ -326,22 +356,57 @@
         };
 
         const defaultMenuItems = [
+            // ប្រភេទកាហ្វេក្តៅ (HOT)
             { id: 1, name: "Hot Latte", category: "Hot Coffee", price: 4000, cupsSold: 0, stock: 50 },
             { id: 2, name: "Hot Coffee Milk", category: "Hot Coffee", price: 4000, cupsSold: 0, stock: 50 },
             { id: 3, name: "Hot Cappuccino", category: "Hot Coffee", price: 4000, cupsSold: 0, stock: 50 },
             { id: 4, name: "Hot Mocha", category: "Hot Coffee", price: 4000, cupsSold: 0, stock: 50 },
             { id: 5, name: "Hot Americano", category: "Hot Coffee", price: 4000, cupsSold: 0, stock: 50 },
             { id: 6, name: "Espresso", category: "Hot Coffee", price: 4000, cupsSold: 0, stock: 50 },
-            { id: 7, name: "Matcha Latte", category: "Matcha", price: 5500, cupsSold: 0, stock: 50 },
-            { id: 8, name: "Matcha Strawberry", category: "Matcha", price: 7000, cupsSold: 0, stock: 50 },
-            { id: 11, name: "Lemon Tea", category: "Tea", price: 3500, cupsSold: 0, stock: 50 },
-            { id: 12, name: "Honey Lemon Tea", category: "Tea", price: 5000, cupsSold: 0, stock: 50 },
-            { id: 18, name: "Iced Latte", category: "Ice Coffee", price: 5000, cupsSold: 0, stock: 50 },
-            { id: 21, name: "Iced Coffee Milk", category: "Ice Coffee", price: 5000, cupsSold: 0, stock: 50 },
-            { id: 31, name: "passion soda", category: "Soda", price: 4500, cupsSold: 0, stock: 50 }
+
+            // ប្រភេទកាហ្វេត្រជាក់ (ICE)
+            { id: 7, name: "Iced Latte", category: "Ice Coffee", price: 5000, cupsSold: 0, stock: 50 },
+            { id: 8, name: "Iced Coffee Milk", category: "Ice Coffee", price: 5000, cupsSold: 0, stock: 50 },
+            { id: 9, name: "Iced Americano", category: "Ice Coffee", price: 5000, cupsSold: 0, stock: 50 },
+            { id: 10, name: "Iced Mocha", category: "Ice Coffee", price: 5000, cupsSold: 0, stock: 50 },
+            { id: 11, name: "Chocolate Milk", category: "Ice Coffee", price: 5000, cupsSold: 0, stock: 50 },
+            { id: 12, name: "Vanilla Latte", category: "Ice Coffee", price: 5000, cupsSold: 0, stock: 50 },
+            { id: 13, name: "Milk Passion", category: "Ice Coffee", price: 5000, cupsSold: 0, stock: 50 },
+            { id: 14, name: "Passion Cream", category: "Ice Coffee", price: 6000, cupsSold: 0, stock: 50 },
+
+            // Matcha ម៉ាឆា
+            { id: 15, name: "Matcha Latte", category: "Matcha", price: 5500, cupsSold: 0, stock: 50 },
+            { id: 16, name: "Matcha Strawberry", category: "Matcha", price: 7000, cupsSold: 0, stock: 50 },
+            { id: 17, name: "Matcha Blueberry", category: "Matcha", price: 7000, cupsSold: 0, stock: 50 },
+            { id: 18, name: "Matcha Cream", category: "Matcha", price: 6500, cupsSold: 0, stock: 50 },
+
+            // ប្រភេទតែ
+            { id: 19, name: "Lemon Tea", category: "Tea", price: 3500, cupsSold: 0, stock: 50 },
+            { id: 20, name: "Honey Lemon Tea", category: "Tea", price: 5000, cupsSold: 0, stock: 50 },
+            { id: 21, name: "Milk Green Tea", category: "Tea", price: 5000, cupsSold: 0, stock: 50 },
+            { id: 22, name: "Jasmine Milk Tea", category: "Tea", price: 5000, cupsSold: 0, stock: 50 },
+            { id: 23, name: "Butterfly Milk Tea", category: "Tea", price: 5000, cupsSold: 0, stock: 50 },
+            { id: 24, name: "Hibiscus Tea", category: "Tea", price: 4000, cupsSold: 0, stock: 50 },
+
+            // ប្រភេទក្រឡុក
+            { id: 25, name: "Coffee Milk Smoothie", category: "Frappe", price: 7000, cupsSold: 0, stock: 50 },
+            { id: 26, name: "Chocolate Smoothie", category: "Frappe", price: 7000, cupsSold: 0, stock: 50 },
+            { id: 27, name: "Passion Smoothie", category: "Frappe", price: 7000, cupsSold: 0, stock: 50 },
+            { id: 28, name: "Strawberry Smoothie", category: "Frappe", price: 7000, cupsSold: 0, stock: 50 },
+            { id: 29, name: "Blueberry Smoothie", category: "Frappe", price: 7000, cupsSold: 0, stock: 50 },
+
+            // ប្រភេទសូដា
+            { id: 30, name: "passion soda", category: "Soda", price: 4500, cupsSold: 0, stock: 50 },
+            { id: 31, name: "Strawberry Soda", category: "Soda", price: 4500, cupsSold: 0, stock: 50 },
+            { id: 32, name: "Blueberry Soda", category: "Soda", price: 4500, cupsSold: 0, stock: 50 },
+            { id: 33, name: "Tamarind Soda", category: "Soda", price: 4500, cupsSold: 0, stock: 50 }
         ];
 
+        // Core dynamic arrays initialized fresh from source mapping to clear local storage blocks
         let menuItems = JSON.parse(localStorage.getItem('cafe_revert_menu')) || defaultMenuItems;
+        if (menuItems.length < defaultMenuItems.length) {
+            menuItems = defaultMenuItems; // Safe update patch to seamlessly pull missing entries
+        }
         let salesLog = JSON.parse(localStorage.getItem('cafe_revert_sales')) || [];
 
         function saveSession() {
@@ -359,26 +424,20 @@
             }
         }
 
-        // Render Menu in categorized structural sections continuously
         function renderContinuousMenu() {
             const container = document.getElementById('continuous-menu');
             container.innerHTML = '';
 
-            // Group the current items array by category key
             const groupedItems = {};
             Object.keys(categoriesMap).forEach(cat => groupedItems[cat] = []);
             
             menuItems.forEach(item => {
-                if (!groupedItems[item.category]) {
-                    groupedItems[item.category] = [];
-                }
-                groupedItems[item.category].push(item);
+                if (groupedItems[item.category]) groupedItems[item.category].push(item);
             });
 
-            // Build continuous markup sections
             Object.keys(categoriesMap).forEach(categoryKey => {
                 const itemsInCat = groupedItems[categoryKey];
-                if (itemsInCat.length === 0) return; // Skip categories with no current items
+                if (itemsInCat.length === 0) return;
 
                 let sectionHTML = `
                     <div class="category-section">
@@ -410,7 +469,6 @@
             });
         }
 
-        // Process a beverage sale
         function sellItem(itemId) {
             const item = menuItems.find(i => i.id === itemId);
             if (!item || item.stock <= 0) return;
@@ -425,7 +483,6 @@
             initApp();
         }
 
-        // Remove / Reverse a specific transaction entry
         function removeTransaction(logId) {
             const logIndex = salesLog.findIndex(log => log.id === logId);
             if (logIndex === -1) return;
@@ -444,6 +501,11 @@
 
         function renderSalesLogHTML() {
             const logList = document.getElementById('transaction-log');
+            const totalRevenueContainer = document.getElementById('day-total-revenue');
+            
+            const dailyTotal = salesLog.reduce((sum, entry) => sum + entry.price, 0);
+            totalRevenueContainer.innerText = `${dailyTotal.toLocaleString()} KHR`;
+
             if (salesLog.length === 0) {
                 logList.innerHTML = '<li style="color: #888; justify-content: center;">No sales recorded yet.</li>';
                 return;
@@ -465,7 +527,6 @@
             });
         }
 
-        // Add item
         function addNewMenuItem(e) {
             e.preventDefault();
             const name = document.getElementById('new-item-name').value;
@@ -479,7 +540,6 @@
             initApp();
         }
 
-        // Remove item
         function removeMenuItem(id) {
             if (confirm("Delete this menu option permanently?")) {
                 menuItems = menuItems.filter(item => item.id !== id);
@@ -488,7 +548,6 @@
             }
         }
 
-        // Spreadsheet Export Utilities
         function downloadCSV(csvContent, fileName) {
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
@@ -518,10 +577,7 @@
             renderSalesLogHTML();
         }
 
-        // Initialize App
         initApp();
     </script>
 </body>
 </html>
-
-```
