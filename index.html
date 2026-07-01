@@ -22,9 +22,64 @@
             padding: 20px;
         }
 
-        header {
+        /* Session Setup Overlay screen styles */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border: 1px solid #e1d8cd;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
             text-align: center;
-            padding: 10px 0 30px 0;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-card h2 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .login-card p {
+            color: #777;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        .session-date-display {
+            background-color: #faf8f5;
+            border: 1px dashed var(--secondary-color);
+            border-radius: 6px;
+            padding: 10px;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        /* Main Application Layout wrapper */
+        #app-wrapper {
+            display: none; /* Hidden until session is initialized */
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0 20px 0;
             border-bottom: 2px dashed var(--primary-color);
             margin-bottom: 30px;
         }
@@ -32,13 +87,38 @@
         header h1 {
             margin: 0;
             color: var(--primary-color);
-            font-size: 2.5rem;
+            font-size: 2.2rem;
         }
 
-        header p {
-            margin: 5px 0 0 0;
-            color: #777;
-            font-style: italic;
+        .header-meta {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: flex-end;
+        }
+
+        .session-info-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .user-badge {
+            background-color: #ebdccb;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .date-badge {
+            background-color: #6e4e37;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
         }
 
         .container {
@@ -74,7 +154,6 @@
             align-items: center;
         }
 
-        /* Revenue Ticker Style */
         .revenue-ticker {
             background-color: #faf8f5;
             border: 1px solid var(--secondary-color);
@@ -98,7 +177,6 @@
             color: var(--primary-color) !important;
         }
 
-        /* Continuous Display Layout */
         .continuous-menu-container {
             max-height: 800px;
             overflow-y: auto;
@@ -218,6 +296,7 @@
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            font-size: 0.95rem;
         }
 
         .btn-action {
@@ -273,76 +352,115 @@
 </head>
 <body>
 
-    <header>
-        <h1>Klen Café</h1>
-        <p>Live Sales Tracker (Dataset derived from 1000008333.jpg)</p>
-    </header>
-
-    <div class="container">
-        
-        <div>
-            <div class="panel">
-                <h2>Data Operations</h2>
-                <div class="toolbar-buttons">
-                    <button class="btn-action" style="background-color: var(--secondary-color);" onclick="exportInventoryCSV()">📊 Export Stock CSV</button>
-                    <button class="btn-action" style="background-color: #555;" onclick="exportSalesCSV()">📋 Export Sales CSV</button>
-                    <button class="btn-action" style="background-color: #777;" onclick="clearSavedSession()">🔄 Reset Data</button>
-                </div>
-            </div>
-
-            <div class="panel">
-                <h2>Add New Menu Item</h2>
-                <form id="add-item-form" onsubmit="addNewMenuItem(event)">
-                    <div class="admin-form">
-                        <div class="form-group">
-                            <label>Item Name</label>
-                            <input type="text" id="new-item-name" placeholder="e.g., Iced Latte" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Category</label>
-                            <select id="new-item-category">
-                                <option value="Hot Coffee">ប្រភេទកាហ្វេក្តៅ (HOT)</option>
-                                <option value="Ice Coffee">ប្រភេទកាហ្វេត្រជាក់ (ICE)</option>
-                                <option value="Matcha">Matcha ម៉ាឆា</option>
-                                <option value="Tea">ប្រភេទតែ</option>
-                                <option value="Frappe">ប្រភេទក្រឡុក</option>
-                                <option value="Soda">ប្រភេទសូដា</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Price (KHR)</label>
-                            <input type="number" id="new-item-price" placeholder="4000" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Initial Stock (Cups)</label>
-                            <input type="number" id="new-item-stock" placeholder="50" min="0" required>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn-action" style="margin-top: 15px; width: 100%; background-color: var(--secondary-color);">✨ Register Item to Menu</button>
-                </form>
-            </div>
-
-            <div class="panel">
-                <h2>Recent Transactions</h2>
-                
-                <div class="revenue-ticker">
-                    <span>Total Revenue Today:</span>
-                    <span id="day-total-revenue" class="revenue-amount">0 KHR</span>
-                </div>
-
-                <ul id="transaction-log" class="log-list">
-                    <li style="color: #888; justify-content: center;">No sales recorded yet.</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="panel">
-            <h2>Register / Menu Grid</h2>
+    <!-- SESSION CONFIGURATION SCREEN Layer (No Password required) -->
+    <div id="login-screen">
+        <div class="login-card">
+            <h2>☕ Klen Café Terminal</h2>
+            <p>Initialize your daily work session options below.</p>
             
-            <div id="continuous-menu" class="continuous-menu-container">
-                </div>
-        </div>
+            <!-- Live Date Display Panel -->
+            <div class="session-date-display" id="setup-date-string">
+                📅 Date: Loading...
+            </div>
 
+            <form onsubmit="handleSessionInit(event)" style="display: flex; flex-direction: column; gap: 15px; text-align: left;">
+                <div class="form-group">
+                    <label>Select Active Staff Profile</label>
+                    <select id="session-username" style="width: 100%;">
+                        <option value="Cashier Front Counter">Cashier Front Counter</option>
+                        <option value="Store Manager (Admin)">Store Manager (Admin)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-action" style="background-color: var(--secondary-color); padding: 12px; margin-top: 10px;">🔓 Open Daily Session</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER LAYER -->
+    <div id="app-wrapper">
+        <header>
+            <div>
+                <h1>ក្លិនកាហ្វេ Klen Café</h1>
+                <p style="margin: 3px 0 0 0; color: #777; font-style: italic;">Live Sales Tracker</p>
+            </div>
+            <div class="header-meta">
+                <div class="session-info-group">
+                    <span class="date-badge" id="active-date-badge">Date: --/--/----</span>
+                    <span class="user-badge" id="active-user-badge">Staff: Loading...</span>
+                </div>
+                <button class="btn-danger" onclick="handleCloseSession()" style="padding: 4px 10px; font-size: 0.8rem; margin-top: 5px;">🔒 Exit Session</button>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- LEFT PANEL: OPERATIONS & LOGS -->
+            <div>
+                <!-- SYSTEM ACTIONS PANEL -->
+                <div class="panel">
+                    <h2>Data Operations</h2>
+                    <div class="toolbar-buttons">
+                        <button class="btn-action" style="background-color: var(--secondary-color);" onclick="exportInventoryCSV()">📊 Export Stock CSV</button>
+                        <button class="btn-action" style="background-color: #555;" onclick="exportSalesCSV()">📋 Export Sales CSV</button>
+                        <button class="btn-action" style="background-color: #777;" onclick="clearSavedSession()">🔄 Reset Data</button>
+                    </div>
+                </div>
+
+                <!-- ADMINISTRATIVE PANEL: ADD NEW ITEM -->
+                <div class="panel">
+                    <h2>Add New Menu Item</h2>
+                    <form id="add-item-form" onsubmit="addNewMenuItem(event)">
+                        <div class="admin-form">
+                            <div class="form-group">
+                                <label>Item Name</label>
+                                <input type="text" id="new-item-name" placeholder="e.g., Iced Latte" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="new-item-category">
+                                    <option value="Hot Coffee">ប្រភេទកាហ្វេក្តៅ (HOT)</option>
+                                    <option value="Ice Coffee">ប្រភេទកាហ្វេត្រជាក់ (ICE)</option>
+                                    <option value="Matcha">Matcha ម៉ាឆា</option>
+                                    <option value="Tea">ប្រភេទតែ</option>
+                                    <option value="Frappe">ប្រភេទក្រឡុក</option>
+                                    <option value="Soda">ប្រភេទសូដា</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Price (KHR)</label>
+                                <input type="number" id="new-item-price" placeholder="4000" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Initial Stock (Cups)</label>
+                                <input type="number" id="new-item-stock" placeholder="50" min="0" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-action" style="margin-top: 15px; width: 100%; background-color: var(--secondary-color);">✨ Register Item to Menu</button>
+                    </form>
+                </div>
+
+                <!-- TRANSACTION LOG PANEL -->
+                <div class="panel">
+                    <h2>Recent Transactions</h2>
+                    
+                    <div class="revenue-ticker">
+                        <span>Total Revenue Today:</span>
+                        <span id="day-total-revenue" class="revenue-amount">0 KHR</span>
+                    </div>
+
+                    <ul id="transaction-log" class="log-list">
+                        <li style="color: #888; justify-content: center;">No sales recorded yet.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: SALES / CONTINUOUS MENU INTERFACE -->
+            <div class="panel">
+                <h2>Register / Menu Grid</h2>
+                <div id="continuous-menu" class="continuous-menu-container">
+                    <!-- Populated continuously by script -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -402,12 +520,58 @@
             { id: 33, name: "Tamarind Soda", category: "Soda", price: 4500, cupsSold: 0, stock: 50 }
         ];
 
-        // Core dynamic arrays initialized fresh from source mapping to clear local storage blocks
         let menuItems = JSON.parse(localStorage.getItem('cafe_revert_menu')) || defaultMenuItems;
         if (menuItems.length < defaultMenuItems.length) {
-            menuItems = defaultMenuItems; // Safe update patch to seamlessly pull missing entries
+            menuItems = defaultMenuItems;
         }
         let salesLog = JSON.parse(localStorage.getItem('cafe_revert_sales')) || [];
+        
+        let currentSessionUser = sessionStorage.getItem('active_cafe_user') || null;
+        let currentSessionDate = sessionStorage.getItem('active_cafe_date') || null;
+
+        // Get localized simple date configuration string
+        function getFormattedDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date().toLocaleDateString('en-US', options);
+        }
+
+        function checkActiveSession() {
+            // Update the greeting interface configuration element first
+            document.getElementById('setup-date-string').innerText = `📅 Date: ${getFormattedDate()}`;
+
+            if (currentSessionUser && currentSessionDate) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-wrapper').style.display = 'block';
+                document.getElementById('active-user-badge').innerText = `Staff: ${currentSessionUser}`;
+                document.getElementById('active-date-badge').innerText = `Session: ${currentSessionDate}`;
+                initApp();
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('app-wrapper').style.display = 'none';
+            }
+        }
+
+        function handleSessionInit(e) {
+            e.preventDefault();
+            const selectedUser = document.getElementById('session-username').value;
+            const shortDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            currentSessionUser = selectedUser;
+            currentSessionDate = shortDate;
+
+            sessionStorage.setItem('active_cafe_user', selectedUser);
+            sessionStorage.setItem('active_cafe_date', shortDate);
+            
+            checkActiveSession();
+        }
+
+        function handleCloseSession() {
+            sessionStorage.removeItem('active_cafe_user');
+            sessionStorage.removeItem('active_cafe_date');
+            currentSessionUser = null;
+            currentSessionDate = null;
+            checkActiveSession();
+        }
 
         function saveSession() {
             localStorage.setItem('cafe_revert_menu', JSON.stringify(menuItems));
@@ -577,7 +741,8 @@
             renderSalesLogHTML();
         }
 
-        initApp();
+        // Run verification loop immediately on browser startup
+        checkActiveSession();
     </script>
 </body>
 </html>
